@@ -2,10 +2,48 @@
   import { onMount } from 'svelte';
   import { cart } from '../stores/cart';
   import type { CartItem } from '../stores/cart';
-  export let menuItems: CartItem[] = [];
+    import { invalidate, invalidateAll } from '$app/navigation';
+    import SvelteMarkdown from 'svelte-markdown';
 
-  let messages: Array<{text: string, isUser: boolean, image?: string}> = [];
-  let inputText = '';
+    const { sessionId, interactions, currentInteraction }: { sessionId: string, interactions: any, currentInteraction: any } = $props();
+
+
+  async function submit() {
+    messages.push({
+          text: inputText,
+          items: undefined,
+          isUser: true
+        });
+
+
+
+    const result = await fetch("./?sessionId=" + sessionId, {
+      method: "POST",
+      body: JSON.stringify({
+        message: inputText,
+      })
+    });
+
+      inputText = "";
+
+    const response = await result.json();
+    console.log(response);
+    
+    if (result.ok && response.messageId)  {
+      // Update the URL with the new messageId
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.set('messageId', response.messageId);
+      window.history.pushState({}, '', newUrl);
+
+      invalidateAll();
+    }
+  }
+
+  let messages: Array<{text: string, isUser: boolean, image?: string, items: undefined | any[] }> = $state([]);
+
+  messages = interactions.map((interaction: { content: any; type: string; menuItems: undefined | any[] }) => ({ text: interaction.content, isUser: interaction.type == "user", image: undefined, items: interaction.menuItems ?? [] }));
+
+  let inputText = $state('');
   let isListening = false;
   let selectedLanguage = 'en';
   
@@ -18,37 +56,32 @@
     { code: 'hi', name: 'Hindi' }
   ];
 
-  function handleSubmit() {
-    if (!inputText.trim()) return;
-    messages = [...messages, { text: inputText, isUser: true }];
-    // Try to match input to a menu item (simple case-insensitive substring match)
-    const found = menuItems.find(item => inputText.toLowerCase().includes(item.name.toLowerCase()));
-    if (found) {
-      cart.update(items => {
-        const existing = items.find(i => i.id === found.id);
-        if (existing) {
-          return items.map(i => i.id === found.id ? { ...i, quantity: (i.quantity || 1) + 1 } : i);
-        } else {
-          return [...items, { ...found, quantity: 1 }];
-        }
-      });
-      setTimeout(() => {
-        messages = [...messages, {
-          text: `I've added ${found.name} to your cart!`,
-          isUser: false,
-          image: found.image
-        }];
-      }, 500);
-    } else {
-      setTimeout(() => {
-        messages = [...messages, {
-          text: "Sorry, I couldn't find that item on the menu.",
+  let loading = $state(false);
+
+  let agentInteraction = $state("");
+  let items = $state([]) as any[];
+
+  $effect(() => {
+    console.log(currentInteraction);
+    
+    if(currentInteraction.status) {
+      loading = true;
+
+      (async () => {
+        const response = await currentInteraction.status;
+
+        loading = false;
+
+        messages.push({
+          text: response.response as string,
+          items: response.items,
           isUser: false
-        }];
-      }, 500);
+        });
+        
+      })();
     }
-    inputText = '';
-  }
+  })
+  
 
   function toggleVoiceInput() {
     isListening = !isListening;
@@ -72,14 +105,31 @@
           <img src={message.image} alt="Item added" class="item-image" />
         {/if}
         <div class="message-content">
-          <p>{message.text}</p>
-          {#if !message.isUser && message.image}
-            <span class="added-label">Added to Cart</span>
+          <p><SvelteMarkdown source={message.text}/></p>
+          
+          {#if message.items}
+             {#each message.items as item}
+                <div class="border border-zinc-300 rounded-lg p-4 mt-4">
+                <p class="mb-2 font-bold">{item.title}</p>
+                <div class="flex items-center text-sm justify-between">
+                  <p>{item.calories}</p>
+                  <p>{item.price}</p>
+                </div>
+              </div>
+            {/each}
           {/if}
         </div>
       </div>
     {/each}
-  </div>
+
+    {#if loading == true}
+      <div class="flex items-center gap-3">
+        <div class="border-2 border-t-black border-l-black border-white w-5 h-5 rounded-full animate-spin"></div>
+        <p class="font-bold">Loading Response</p>
+        
+      </div>
+    {/if}
+    </div>
 
   <div class="input-area">
     <div class="mic-row">
@@ -90,14 +140,14 @@
         </svg>
       </button>
     </div>
-    <form on:submit|preventDefault={handleSubmit}>
       <input
-        type="text"
-        bind:value={inputText}
-        placeholder="What would you like to order?"
+      type="text"
+      bind:value={inputText}
+      placeholder="What would you like to order?"
+      name="message"
+      class="w-[calc(100%-6rem)]"
       />
-      <button type="submit">Send</button>
-    </form>
+      <button onclick={submit} type="submit">Send</button>
   </div>
 </div>
 
@@ -106,7 +156,7 @@
     background: #fff;
     border-radius: 20px;
     box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    height: 600px;
+    /*height: 600px;*/
     display: flex;
     flex-direction: column;
     overflow: hidden;

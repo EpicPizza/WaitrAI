@@ -1,8 +1,21 @@
-<script>
+<script lang="ts">
+	import { onMount, setContext } from 'svelte';
 	import '../app.css';
+	import { firebaseClient } from '$lib/Firebase/firebase.svelte';
+	
+	let { children, data } = $props();
+	const client = firebaseClient();
+	
+	client.serverInit(data.preload);
+	setContext('client', client);
+	$inspect(client.user);
+	
+	onMount(() => {
+		client.clientInit(() => {});
+	});
 </script>
 
-<slot />
+{@render children()}
 
 <style>
 	:global(body) {
