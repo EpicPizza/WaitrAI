@@ -18,7 +18,7 @@
   export let categories: Category[];
 </script>
 
-<div class="menu-container md:max-h-[calc(100dvh-4rem)] overflow-auto">
+<div class="menu-container md:max-h-[calc(100dvh-9.5rem)] overflow-auto">
   <h2>Menu</h2>
   {#each categories as category}
     <h3 class="capitalize pt-8 pb-2 opacity-50">{category.name}</h3>

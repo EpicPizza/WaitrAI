@@ -6,8 +6,12 @@
 </script>
 
 <nav class="navbar">
-  <div class="logo">
-    <img src="file:///Users/ashishgupta/Downloads/20250614_1529_waitrAI_Logo_Design_simple_compose_01jxr8vfs3e42t115r2d8m3d5r-removebg-preview.png" alt="WaitrAI" class="logo-img" />
+  <div class="flex items-center gap-3">
+    <div class="logo w-30">
+      <img src="./logo.png" alt="WaitrAI" class="logo-img" />
+    </div>
+    <p class="text-3xl font-bold mb-1">/</p>
+    <p class="text-xl">Restaurant</p>
   </div>
   
   <button class="checkout-button" on:click={() => dispatch('checkout')} disabled={cartItems === 0}>
@@ -40,10 +44,11 @@
   }
 
   .logo-img {
-    height: 2.2rem;
+    height: 4rem;
     width: auto;
     background: transparent;
     display: block;
+    position:absolute;
   }
 
   .logo-label {

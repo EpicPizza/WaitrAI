@@ -13,6 +13,7 @@
 </svelte:head>
 
 <main class="app-container">
+  <NavBar cartTotal={0} cartItems={0}></NavBar>
   
   <div class="content-wrapper flex-col md:flex-row">
     <div class="chat-section w-full md:w-4/5">
