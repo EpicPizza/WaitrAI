@@ -82,8 +82,35 @@ export async function load({ url }) {
     const sessionData = sessionDoc.data();
     const interactions = sessionData?.interactions || [];
 
-    // If we already have a session ID, just return it
+    // Fetch all menu items
+    const menuSnapshot = await db.collection('menu').get();
+    const allMenuItems = menuSnapshot.docs
+        .filter(doc => doc.id !== 'info')
+        .map(doc => ({
+            id: doc.id,
+            ...doc.data() as {
+                category: string,
+
+            },
+        }));
+
+    // All categories in the menu
+    const menuInfo = await db.collection('menu').doc('info').get();
+    const categories = menuInfo.exists ? (menuInfo.data()?.categories || []) : [];
+
+    // Group menu items by category for better organization
+    const menuItemsByCategory = categories.map((category: string) => ({
+        name: category,
+        items: allMenuItems.filter(item => item.category === category)
+    }));
+
+    // Keep the full menu items list as well
+    const menuItems = allMenuItems;
+
+    // If we already ahave a session ID, just return it
     return {
+        categories: menuItemsByCategory,
+        items: menuItems,
         sessionId: currentSessionId,
         interactions: interactions,
         currentInteraction: {

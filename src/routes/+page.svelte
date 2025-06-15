@@ -14,11 +14,12 @@
 
 <main class="app-container">
   
-  <div class="content-wrapper">
-    <div class="chat-section">
+  <div class="content-wrapper flex-col md:flex-row">
+    <div class="chat-section w-full md:w-4/5">
       <ChatAssistant currentInteraction={data.currentInteraction} interactions={data.interactions} sessionId={data.sessionId} />
     </div>
     <div class="menu-section">
+      <MenuViewer categories={data.categories}></MenuViewer>
     </div>
   </div>
 </main>
@@ -31,15 +32,11 @@
 
   .content-wrapper {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0;
+    align-items: start;
+    gap: 2rem;
     width: 100%;
-    max-width: 600px;
+    padding: 2rem;
     margin: 0 auto;
-  }
-  .chat-section {
-    width: 100%;
   }
   .mic-row {
     width: 100%;

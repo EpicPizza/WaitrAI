@@ -1,29 +1,43 @@
 <script lang="ts">
-  export let items: Array<{
-    id: number;
-    name: string;
-    price: number;
-    description: string;
-    image: string;
-  }>;
+  interface Item {
+    id: number,
+    title: string,
+    calories: string,
+    description: string,
+    health_information: string,
+    image_url: string,
+    price: string,
+    ingredients: string[],
+  };
+
+  interface Category {
+    items: Item[],
+    name: string,
+  }
+
+  export let categories: Category[];
 </script>
 
-<div class="menu-container">
+<div class="menu-container md:max-h-[calc(100dvh-4rem)] overflow-auto">
   <h2>Menu</h2>
-  <div class="menu-grid">
-    {#each items as item}
-      <div class="menu-item">
-        <div class="item-image">
-          <img src={item.image} alt={item.name} />
+  {#each categories as category}
+    <h3 class="capitalize pt-8 pb-2 opacity-50">{category.name}</h3>
+    <div class="menu-grid">
+      {#each category.items as item}
+        <div class="menu-item">
+          <div class="item-image">
+            <img src={item.image_url} alt={item.title} />
+          </div>
+          <div class="item-details">
+            <h3>{item.title}</h3>
+            <p class="price">{item.price}</p>
+            <p class="description">{item.description}</p>
+          </div>
         </div>
-        <div class="item-details">
-          <h3>{item.name}</h3>
-          <p class="price">${item.price.toFixed(2)}</p>
-          <p class="description">{item.description}</p>
-        </div>
-      </div>
-    {/each}
-  </div>
+      {/each}
+    </div>
+
+  {/each}
 </div>
 
 <style>

@@ -89,7 +89,7 @@
   }
 </script>
 
-<div class="chat-container">
+<div class="chat-container max-h-[calc(100dvh-4rem)] sticky top-0">
   <div class="language-selector">
     <select bind:value={selectedLanguage}>
       {#each languages as lang}
