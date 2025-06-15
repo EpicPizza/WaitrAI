@@ -1,6 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  
+  import { cart } from '../stores/cart';
+  import type { CartItem } from '../stores/cart';
+  export let menuItems: CartItem[] = [];
+
   let messages: Array<{text: string, isUser: boolean, image?: string}> = [];
   let inputText = '';
   let isListening = false;
@@ -17,18 +20,34 @@
 
   function handleSubmit() {
     if (!inputText.trim()) return;
-    
     messages = [...messages, { text: inputText, isUser: true }];
+    // Try to match input to a menu item (simple case-insensitive substring match)
+    const found = menuItems.find(item => inputText.toLowerCase().includes(item.name.toLowerCase()));
+    if (found) {
+      cart.update(items => {
+        const existing = items.find(i => i.id === found.id);
+        if (existing) {
+          return items.map(i => i.id === found.id ? { ...i, quantity: (i.quantity || 1) + 1 } : i);
+        } else {
+          return [...items, { ...found, quantity: 1 }];
+        }
+      });
+      setTimeout(() => {
+        messages = [...messages, {
+          text: `I've added ${found.name} to your cart!`,
+          isUser: false,
+          image: found.image
+        }];
+      }, 500);
+    } else {
+      setTimeout(() => {
+        messages = [...messages, {
+          text: "Sorry, I couldn't find that item on the menu.",
+          isUser: false
+        }];
+      }, 500);
+    }
     inputText = '';
-    
-    // Simulate AI response - replace with actual AI integration
-    setTimeout(() => {
-      messages = [...messages, { 
-        text: "I've added that to your cart!", 
-        isUser: false,
-        image: "/images/burger.jpg" // Example image
-      }];
-    }, 1000);
   }
 
   function toggleVoiceInput() {
@@ -65,7 +84,7 @@
   <div class="input-area">
     <div class="mic-row">
       <button class="mic-btn" aria-label="Voice input">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="45" height="45" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14Z" fill="currentColor"/>
           <path d="M17 11C17 13.76 14.76 16 12 16C9.24 16 7 13.76 7 11H5C5 14.53 7.61 17.43 11 17.92V21H13V17.92C16.39 17.43 19 14.53 19 11H17Z" fill="currentColor"/>
         </svg>
@@ -84,13 +103,14 @@
 
 <style>
   .chat-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
     height: 600px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   }
 
   .language-selector {
@@ -101,7 +121,12 @@
   .language-selector select {
     padding: 0.5rem;
     border-radius: 4px;
-    border: 1px solid #ddd;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    color: #222;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 500;
   }
 
   .messages {
@@ -125,15 +150,16 @@
   }
 
   .message-content {
-    background: #f0f0f0;
+    background: #f8f9fa;
     padding: 0.75rem 1rem;
     border-radius: 12px;
     position: relative;
+    color: #222;
   }
 
   .message.user .message-content {
-    background: #4CAF50;
-    color: white;
+    background: #222;
+    color: #fff;
   }
 
   .item-image {
@@ -177,38 +203,42 @@
     padding: 0.75rem 1.5rem;
     border: none;
     border-radius: 8px;
-    background: #4CAF50;
-    color: white;
+    background: #222;
+    color: #fff;
     cursor: pointer;
     transition: background-color 0.2s;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
   }
 
   .input-area button:hover {
-    background: #45a049;
+    background: #333;
   }
 
   .mic-row {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-  }
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
 
-  .mic-btn {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    background: #f3f4f6;
-    color: #222;
-    font-size: 2.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-  }
+.mic-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 40%;
+  background: #fff;
+  color: #222;
+  font-size: 2.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+  border: 1.5px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
 
   .mic-btn:hover {
-    background: #e0e7ef;
+    background: #f3f4f6;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.12);
   }
 </style> 

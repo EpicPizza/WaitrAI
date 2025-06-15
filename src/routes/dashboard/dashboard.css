@@ -1,0 +1,114 @@
+/* Dashboard Layout Styles */
+.dashboard-bg {
+  min-height: 100vh;
+  background: #faf9f6;
+  padding: 48px 8px;
+}
+
+.dashboard-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.dashboard-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 768px) {
+  .dashboard-columns {
+    flex-direction: row;
+  }
+}
+
+/* Column Headers */
+.dashboard-header-yellow {
+  background: #FFD966;
+  color: #222;
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding: 18px 28px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+.dashboard-header-blue {
+  background: #3DB2FF;
+  color: #fff;
+  font-weight: bold;
+  font-size: 1.25rem;
+  padding: 18px 28px;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+/* Column Bodies */
+.dashboard-body-yellow {
+  background: #FFF9E5;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  padding: 32px 24px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.dashboard-body-blue {
+  background: #E6F2FB;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  padding: 32px 24px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Order Card Styles */
+.dashboard-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  border: 1px solid #f3e7b4;
+  padding: 28px 22px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.dashboard-card-blue {
+  border: 1px solid #b6e0fa;
+}
+.dashboard-order-id {
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 4px;
+}
+.dashboard-items {
+  color: #444;
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+.dashboard-time {
+  color: #888;
+  font-size: 0.95rem;
+  margin-top: auto;
+}
+.dashboard-btn {
+  margin-top: 16px;
+  padding: 8px 20px;
+  background: #222;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  width: fit-content;
+}
+.dashboard-btn:hover {
+  background: #444;
+} 

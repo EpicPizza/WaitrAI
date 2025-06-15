@@ -1,15 +1,16 @@
 <script lang="ts">
   export let cartTotal: number;
   export let cartItems: number;
+  import { createEventDispatcher } from 'svelte';
+  const dispatch = createEventDispatcher();
 </script>
 
 <nav class="navbar">
   <div class="logo">
-    <img src="/logo.svg" alt="AI Waiter Logo" />
-    <span>AI Waiter</span>
+    <img src="file:///Users/ashishgupta/Downloads/20250614_1529_waitrAI_Logo_Design_simple_compose_01jxr8vfs3e42t115r2d8m3d5r-removebg-preview.png" alt="WaitrAI" class="logo-img" />
   </div>
   
-  <button class="checkout-button">
+  <button class="checkout-button" on:click={() => dispatch('checkout')} disabled={cartItems === 0}>
     <span class="cart-icon">🛒</span>
     <span class="cart-info">
       {#if cartItems > 0}
@@ -38,15 +39,18 @@
     gap: 0.5rem;
   }
 
-  .logo img {
-    height: 2rem;
+  .logo-img {
+    height: 2.2rem;
     width: auto;
+    background: transparent;
+    display: block;
   }
 
-  .logo span {
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #333;
+  .logo-label {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #23404a;
+    letter-spacing: 0.5px;
   }
 
   .checkout-button {
@@ -64,7 +68,12 @@
     transition: background-color 0.2s;
   }
 
-  .checkout-button:hover {
+  .checkout-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .checkout-button:hover:enabled {
     background-color: #45a049;
   }
 
