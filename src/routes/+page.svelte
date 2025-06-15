@@ -7,12 +7,26 @@
 
   const { data } = $props();
 
-  let itemCount = $state(0);
+  setContext('sessionId', data.sessionId);
+
+  let itemCount = $state(data.cart.length);
+  let cartTotal = $derived(data.cart.reduce((total: number, item: { price: number; quantity: number; }) => total + (item.price * item.quantity), 0));
 
   setContext('add', async (itemId: string) => {
-    console.log(itemId);
+    const response = await fetch("/cart?sessionId=" + data.sessionId , {
+      method: "POST",
+      body: JSON.stringify({
+        quantity: 1,
+        productId: itemId,
+      })
+    });
 
     itemCount++;
+    // Find the item price from data.items using the itemId and add it to cartTotal
+    const addedItem = data.items.find(item => item.id === itemId);
+    if (addedItem) {
+      cartTotal += addedItem.price;
+    }
   })
 </script>
 
@@ -21,7 +35,7 @@
 </svelte:head>
 
 <main class="app-container">
-  <NavBar cartTotal={0} cartItems={itemCount}></NavBar>
+  <NavBar cartTotal={cartTotal} cartItems={itemCount}></NavBar>
   
   <div class="content-wrapper flex-col md:flex-row">
     <div class="chat-section w-full md:w-4/5">

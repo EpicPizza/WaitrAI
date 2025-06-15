@@ -1,8 +1,10 @@
 <script lang="ts">
+    import Icon from '@iconify/svelte';
+    import { getContext } from 'svelte';
   export let cartTotal: number;
   export let cartItems: number;
-  import { createEventDispatcher } from 'svelte';
-  const dispatch = createEventDispatcher();
+
+  const sessionId = getContext('sessionId');
 </script>
 
 <nav class="navbar">
@@ -14,17 +16,26 @@
     <p class="text-xl">Restaurant</p>
   </div>
   
-  <button class="checkout-button" on:click={() => dispatch('checkout')} disabled={cartItems === 0}>
-    <span class="cart-icon">🛒</span>
+  {#if cartItems == 0}
+    <div class="checkout-button opacity-50">
+      <Icon width=1.5rem icon=mdi:cart></Icon>
+      <span class="cart-info">
+        <span class="cart-empty">Checkout</span>
+      </span>
+    </div>
+  {:else}
+    <a class="checkout-button" href="/cart?sessionId={sessionId}">
+    <Icon width=1.5rem icon=mdi:cart></Icon>
     <span class="cart-info">
       {#if cartItems > 0}
-        <span class="cart-count">{cartItems}</span>
         <span class="cart-total">${cartTotal.toFixed(2)}</span>
+        <span class="cart-count">{cartItems} item{cartItems == 1 ? "": "s"}</span>
       {:else}
         <span class="cart-empty">Checkout</span>
       {/if}
     </span>
-  </button>
+  </a>
+  {/if}
 </nav>
 
 <style>

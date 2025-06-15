@@ -2,43 +2,26 @@
   import { goto } from '$app/navigation';
   import { writable } from 'svelte/store';
 
-  // Mock cart data
-  const cartItems = [
-    {
-      image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=facearea&w=64&h=64',
-      name: 'Crispy Chicken San',
-      details: '2x tuna sashimi, 3x vegetables, 1x noodle',
-      price: 29.5
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1464306076886-debca5e8a6b0?auto=format&fit=facearea&w=64&h=64',
-      name: 'Prawn & Chicken Roll',
-      details: '2x tuna sashimi, 3x vegetables, 1x noodle',
-      price: 9.5
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1502741338009-cac2772e18bc?auto=format&fit=facearea&w=64&h=64',
-      name: 'Braised Fish Head',
-      details: '2x tuna sashimi, 3x vegetables, 1x noodle',
-      price: 15.0
-    },
-    {
-      image: 'https://images.unsplash.com/photo-1519864600265-abb23847ef2c?auto=format&fit=facearea&w=64&h=64',
-      name: 'Salad Fritters',
-      details: '2x tuna sashimi, 3x vegetables, 1x noodle',
-      price: 4.9
-    }
-  ];
+  const { data } = $props();
 
-  const tip = writable(0);
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price, 0);
-  const tax = 2.75;
-  $: tipValue = +$tip;
-  $: total = subtotal + tax + tipValue;
+  // Mock cart data
+  const cartItems = data.cart as {
+    title: string,
+    quantity: number,
+    price: number,
+    id: string
+  }[];
+
+
+
+  let tip = $state(0)
+  let subtotal = $derived(cartItems.reduce((sum, item) => sum + item.price, 0));
+  let tax = 2.75;
+  let total = $derived(subtotal + tax + tip);
 
   function handleCheckout() {
     // For demo, pass tip as query param. In real app, use a store or session.
-    goto(`/checkout?tip=${tipValue}`);
+    goto(`/checkout?tip=${tip}`);
   }
 </script>
 
@@ -53,23 +36,24 @@
       <div class="cart-summary-row"><span>Tax & Fees</span><span>${tax.toFixed(2)}</span></div>
       <div class="cart-summary-row">
         <span>Tip</span>
-        <input type="number" min="0" class="cart-tip-input" bind:value={$tip} placeholder="0.00" />
+        <input type="number" min="0" class="cart-tip-input" bind:value={tip} placeholder="0.00" />
       </div>
       <div class="cart-summary-row cart-summary-total"><span>Total</span><span>${total.toFixed(2)}</span></div>
     </div>
     <div class="cart-items">
       {#each cartItems as item}
+        {@const menuItem = data.items.find(menuItem => menuItem.id == item.id)}
         <div class="cart-item">
-          <img class="cart-item-img" src={item.image} alt={item.name} />
+          <img class="cart-item-img" src={menuItem?.image_url} alt={item.title} />
           <div class="cart-item-info">
-            <div class="cart-item-name">{item.name}</div>
-            <div class="cart-item-details">{item.details}</div>
+            <div class="cart-item-name">{item.title}</div>
+            <div class="cart-item-details">{menuItem?.description}</div>
             <div class="cart-item-price">${item.price.toFixed(2)}</div>
           </div>
         </div>
       {/each}
     </div>
-    <button class="cart-checkout-btn" on:click={handleCheckout}>Checkout</button>
+    <button class="cart-checkout-btn" onclick={handleCheckout}>Checkout</button>
   </div>
 </div>
 

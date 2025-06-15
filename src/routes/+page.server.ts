@@ -82,6 +82,11 @@ export async function load({ url }) {
     const sessionData = sessionDoc.data();
     const interactions = sessionData?.interactions || [];
 
+    console.log(sessionData?.cart);
+
+    // Get cart items from the session data, defaulting to empty array if not found
+    const cartItems = sessionData?.cart ?? [];
+
     // Fetch all menu items
     const menuSnapshot = await db.collection('menu').get();
     const allMenuItems = menuSnapshot.docs
@@ -90,7 +95,8 @@ export async function load({ url }) {
             id: doc.id,
             ...doc.data() as {
                 category: string,
-
+                price: number,
+                description: string,
             },
         }));
 
@@ -111,6 +117,7 @@ export async function load({ url }) {
     return {
         categories: menuItemsByCategory,
         items: menuItems,
+        cart: cartItems,
         sessionId: currentSessionId,
         interactions: interactions,
         currentInteraction: {

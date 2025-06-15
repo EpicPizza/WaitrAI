@@ -11,7 +11,7 @@
     description: string,
     health_information: string,
     image_url: string,
-    price: string,
+    price: number,
     ingredients: string[],
   };
 
