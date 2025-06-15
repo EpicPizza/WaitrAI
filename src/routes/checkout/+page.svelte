@@ -2,8 +2,10 @@
   import { page } from '$app/stores';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
+  import { invalidateAll } from '$app/navigation';
 
   let name = '';
+  let table = '';
   let selectedPayment = 'visa';
   let tip = 0;
   let total = 52.25; // For demo, you can pass this from cart or recalculate
@@ -13,10 +15,6 @@
     tip = +(url.searchParams.get('tip') || 0);
     // In a real app, recalculate total here using cart data and tip
   });
-
-  function handlePayment() {
-    alert(`Thank you, ${name || 'Guest'}! Your payment is being processed.`);
-  }
 </script>
 
 <div class="checkout-bg">
@@ -28,6 +26,8 @@
     <div class="checkout-form">
       <div class="checkout-label">YOUR NAME</div>
       <input class="checkout-input" type="text" bind:value={name} placeholder="Enter your name" />
+      <div class="checkout-label">YOUR TABLE</div>
+      <input class="checkout-input" type="text" bind:value={table} placeholder="Enter your table" />
       <div class="checkout-label mt">PAYMENT METHOD</div>
       <div class="checkout-payments">
         <label class="checkout-payment-option">
@@ -46,7 +46,7 @@
           <span class="checkout-payment-text">**** **** **** 3461</span>
         </label>
       </div>
-      <button class="checkout-pay-btn" on:click={handlePayment}>Payment</button>
+      <a class="checkout-pay-btn text-center" href="/checkout?finish=true">Payment</a>
     </div>
     <div class="checkout-touchid">Pay with Touch ID</div>
   </div>

@@ -395,12 +395,3 @@ export async function load({ url }) {
         }
     };
 }
-
-/**
- * Creates a promise that resolves after a specified delay
- * @param ms Time to wait in milliseconds
- * @returns Promise that resolves after the specified delay
- */
-export function delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}

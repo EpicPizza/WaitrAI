@@ -54,6 +54,7 @@ export const POST: RequestHandler = async ({ request }) => {
             quantity: item.quantity,
             title: productData?.title,
             price: productData?.price,
+            cartId: crypto.randomUUID(),
             // Add any other relevant product details
         };
 
@@ -79,6 +80,63 @@ export const POST: RequestHandler = async ({ request }) => {
         return json({ 
             success: false, 
             message: 'Failed to add item to cart' 
+        }, { status: 500 });
+    }
+};
+export const DELETE: RequestHandler = async ({ request }) => {
+    try {
+        const { itemId } = await request.json();
+
+        // Extract currentSessionId from URL query parameters
+        const url = new URL(request.url);
+        const currentSessionId = url.searchParams.get('sessionId');
+
+        if (!currentSessionId) {
+            return json({ success: false, message: 'Session ID is required' }, { status: 400 });
+        }
+
+        if (!itemId) {
+            return json({ success: false, message: 'Item ID is required' }, { status: 400 });
+        }
+
+        const db = firebaseAdmin.getFirestore();
+        const sessionRef = db.collection('sessions').doc(currentSessionId);
+        const sessionDoc = await sessionRef.get();
+    
+        // Check if session exists
+        if (!sessionDoc.exists) {
+            return json({ success: false, message: 'Session not found' }, { status: 404 });
+        }
+
+        const sessionData = sessionDoc.data();
+        
+        // Check if cart exists and contains items
+        if (!sessionData?.cart || !Array.isArray(sessionData.cart)) {
+            return json({ success: false, message: 'Cart is empty' }, { status: 404 });
+        }
+        
+        // Find the item to remove
+        const updatedCart = sessionData.cart.filter(item => item.id !== itemId);
+        
+        // If lengths are the same, item wasn't found
+        if (updatedCart.length === sessionData.cart.length) {
+            return json({ success: false, message: 'Item not found in cart' }, { status: 404 });
+        }
+
+        // Update the cart in the session document
+        await sessionRef.update({
+            cart: updatedCart
+        });
+
+        return json({
+            success: true,
+            message: 'Item removed from cart'
+        }, { status: 200 });
+    } catch (error) {
+        console.error('Error removing item from cart:', error);
+        return json({ 
+            success: false, 
+            message: 'Failed to remove item from cart' 
         }, { status: 500 });
     }
 };

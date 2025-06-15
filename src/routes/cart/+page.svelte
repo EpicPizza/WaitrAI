@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
+  import { goto, invalidateAll } from '$app/navigation';
   import { writable } from 'svelte/store';
 
   const { data } = $props();
 
   // Mock cart data
-  const cartItems = data.cart as {
+  let cartItems = $derived(data.cart) as {
     title: string,
     quantity: number,
     price: number,
@@ -21,7 +21,7 @@
 
   function handleCheckout() {
     // For demo, pass tip as query param. In real app, use a store or session.
-    goto(`/checkout?tip=${tip}`);
+    goto(`/checkout?tip=${tip}&sessionId=` + data.sessionId);
   }
 </script>
 
@@ -29,7 +29,7 @@
   <div class="cart-container">
     <div class="cart-header">
       <span class="cart-title">Order</span>
-      <button class="cart-close">Close</button>
+      <a href="/?sessionId={data.sessionId}" class="cart-close">Close</a>
     </div>
     <div class="cart-summary">
       <div class="cart-summary-row"><span>Subtotal</span><span>${subtotal.toFixed(2)}</span></div>
@@ -50,14 +50,71 @@
             <div class="cart-item-details">{menuItem?.description}</div>
             <div class="cart-item-price">${item.price.toFixed(2)}</div>
           </div>
+          <button aria-label="delete" class="cart-item-delete cursor-pointer" onclick={async () => {
+            // Send DELETE request to remove item from cart
+            await fetch(`/cart?sessionId=` + data.sessionId, {
+              method: 'DELETE',
+              body: JSON.stringify({
+                itemId: item.id
+              })
+            })
+            
+            // Reload the data to reflect the removed item
+            await invalidateAll();
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
         </div>
+      {:else}
+        <div class="cart-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <p>Your cart is empty</p>
+          <a href="/?sessionId={data.sessionId}" class="cart-continue-shopping">Continue Shopping</a>
+        </div>
+
       {/each}
     </div>
-    <button class="cart-checkout-btn" onclick={handleCheckout}>Checkout</button>
+    <button class="cart-checkout-btn disabled:opacity-20" 
+        onclick={handleCheckout} 
+        disabled={cartItems.length === 0}>
+      Checkout
+    </button>
   </div>
 </div>
 
 <style>
+          .cart-empty {
+            padding: 36px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            text-align: center;
+          }
+          
+          .cart-empty p {
+            margin: 16px 0;
+            font-size: 1.1rem;
+          }
+          
+          .cart-continue-shopping {
+            color: #ff5f7e;
+            font-weight: 500;
+            text-decoration: none;
+            margin-top: 12px;
+          }
+          
+          .cart-continue-shopping:hover {
+            text-decoration: underline;
+          }
 .cart-bg {
   min-height: 100vh;
   background: #f6f6fa;

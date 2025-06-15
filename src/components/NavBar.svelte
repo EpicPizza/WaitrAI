@@ -28,7 +28,7 @@
     <Icon width=1.5rem icon=mdi:cart></Icon>
     <span class="cart-info">
       {#if cartItems > 0}
-        <span class="cart-total">${cartTotal.toFixed(2)}</span>
+        <span class="cart-total">${(cartTotal + 2.75).toFixed(2)}</span>
         <span class="cart-count">{cartItems} item{cartItems == 1 ? "": "s"}</span>
       {:else}
         <span class="cart-empty">Checkout</span>
