@@ -1,12 +1,14 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { getContext, onMount } from 'svelte';
   import { cart } from '../stores/cart';
   import type { CartItem } from '../stores/cart';
     import { invalidate, invalidateAll } from '$app/navigation';
     import SvelteMarkdown from 'svelte-markdown';
+    import Icon from '@iconify/svelte';
 
     const { sessionId, interactions, currentInteraction }: { sessionId: string, interactions: any, currentInteraction: any } = $props();
 
+  const add = getContext("add") as Function;
 
   async function submit() {
     messages.push({
@@ -109,13 +111,18 @@
           
           {#if message.items}
              {#each message.items as item}
-                <div class="border border-zinc-300 rounded-lg p-4 mt-4">
-                <p class="mb-2 font-bold">{item.title}</p>
-                <div class="flex items-center text-sm justify-between">
-                  <p>{item.calories}</p>
-                  <p>{item.price}</p>
-                </div>
-              </div>
+                <div class="border border-zinc-300 rounded-lg p-4 mt-4 flex items-center gap-4">
+                  <div class="w-full">
+                    <p class="mb-2 font-bold">{item.title}</p>
+                    <div class="flex items-center text-sm justify-between">
+                      <p>{item.calories}</p>
+                      <p>{item.price}</p>
+                    </div>
+                  </div>
+                  <button onclick={() => { add(item.id);  }} class="flex cursor-pointer **:items-center justify-around bg-black/10 rounded-lg p-3">
+                    <Icon width=1.5rem icon=mdi:cart></Icon>
+                  </button>
+               </div>
             {/each}
           {/if}
         </div>

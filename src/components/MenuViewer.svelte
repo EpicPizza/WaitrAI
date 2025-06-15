@@ -1,4 +1,9 @@
 <script lang="ts">
+    import Icon from "@iconify/svelte";
+    import { getContext } from "svelte";
+
+    const add = getContext("add") as Function;
+
   interface Item {
     id: number,
     title: string,
@@ -24,7 +29,7 @@
     <h3 class="capitalize pt-8 pb-2 opacity-50">{category.name}</h3>
     <div class="menu-grid">
       {#each category.items as item}
-        <div class="menu-item">
+        <div class="menu-item relative">
           <div class="item-image">
             <img src={item.image_url} alt={item.title} />
           </div>
@@ -33,6 +38,9 @@
             <p class="price">{item.price}</p>
             <p class="description">{item.description}</p>
           </div>
+          <button onclick={() => { add(item.id);  }} class="flex cursor-pointer **:items-center justify-around bg-black/10 rounded-lg p-3 absolute top-2 left-2">
+            <Icon width=1.5rem icon=mdi:cart></Icon>
+          </button>
         </div>
       {/each}
     </div>
